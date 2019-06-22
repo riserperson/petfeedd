@@ -1,5 +1,5 @@
 from pushbullet import Pushbullet
-from datetime import datetime
+from datetime import datetime as dt, timedelta
 import queue
 import logging
 import time
@@ -31,8 +31,8 @@ class PushWorker(Worker):
                             bc_feed_pushes.append(item)
 
             for bc_feed_push in bc_feed_pushes:
-                push_time = datetime.fromtimestamp(bc_feed_push['created'])
-                if push_time.strftime('%m/%d/%Y, %H:%M') == time.strftime('%m/%d/%Y, %H:%M'):
+                push_time = dt.fromtimestamp(bc_feed_push['created']).strftime('%m/%d/%Y, %H:%M')
+                if push_time in [dt.now().strftime('%m/%d/%Y, %H:%M'), (dt.now() - timedelta(minutes=1)).strftime('%m/%d/%Y, %H:%M'), (dt.now() - timedelta(minutes=2)).strftime('%m/%d/%Y, %H:%M')]:
                     logging.getLogger('petfeedd').info('Found pushbullet feed request.')
                     feed_event = FeedEvent.create(size=1, name='PushBullet', weight=0)
                     self.feed_queue.put(feed_event)
